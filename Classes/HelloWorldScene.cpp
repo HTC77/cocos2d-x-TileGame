@@ -55,7 +55,17 @@ bool HelloWorld::init()
 	// background
 	_background = _tileMap->getLayer("Background");
 	_background->retain();
+
+	// meta layer
+	_meta = _tileMap->getLayer("Meta");
+	_meta->setVisible(false);
+	_meta->retain();
+
 	this->addChild(_tileMap);
+	mapWidth = _tileMap->getMapSize().width;
+	mapHeight = _tileMap->getMapSize().height;
+	tileWidth = _tileMap->getTileSize().width;
+	tileHeight = _tileMap->getTileSize().height;
 
 	// player
 	TMXObjectGroup *objectGroup = _tileMap->getObjectGroup("Objects");
@@ -103,8 +113,8 @@ void HelloWorld::setViewPointCenter(Vec2 position)
 {
 	int x = MAX(position.x, winSize.width / 2);
 	int y = MAX(position.y, winSize.height / 2);
-	x = MIN(x, (_tileMap->getMapSize().width * this->_tileMap->getTileSize().width) - winSize.width / 2);
-	y = MIN(y, (_tileMap->getMapSize().height * _tileMap->getTileSize().height) - winSize.height / 2);
+	x = MIN(x, (mapWidth * tileWidth) - winSize.width / 2);
+	y = MIN(y, (mapHeight * tileHeight) - winSize.height / 2);
 	Vec2 actualPosition = Vec2(x, y);
 
 	Vec2 centerOfView = Vec2(winSize.width / 2, winSize.height / 2);
@@ -128,29 +138,55 @@ void HelloWorld::touchEnded(Touch* touch, Event* event)
 
 	if (abs(diff.x) > abs(diff.y)) {
 		if (diff.x > 0) {
-			playerPos.x += _tileMap->getTileSize().width;
+			playerPos.x += tileWidth;
 		}
 		else {
-			playerPos.x -= _tileMap->getTileSize().width;
+			playerPos.x -= tileWidth;
 		}
 	}
 	else {
 		if (diff.y > 0) {
-			playerPos.y += _tileMap->getTileSize().height;
+			playerPos.y += tileHeight;
 		}
 		else {
-			playerPos.y -= _tileMap->getTileSize().height;
+			playerPos.y -= tileHeight;
 		}
 	}
 
 	// safety check on the bounds of the map
-	if (playerPos.x <= (_tileMap->getMapSize().width * _tileMap->getTileSize().width) &&
-		playerPos.y <= (_tileMap->getMapSize().height * _tileMap->getTileSize().height) &&
+	if (playerPos.x <= (mapWidth * tileWidth) &&
+		playerPos.y <= (mapHeight * tileHeight) &&
 		playerPos.y >= 0 &&
 		playerPos.x >= 0)
 	{
-		_player->setPosition(playerPos);
+		setPlayerPosition(playerPos);
 	}
 
 	this->setViewPointCenter(_player->getPosition());
+}
+
+void HelloWorld::setPlayerPosition(Vec2 position)
+{
+	Vec2 tileCoord = this->tileCoordForPosition(position);
+	int tileGid = 0;
+	tileGid = static_cast<int>(_meta->getTileGIDAt(tileCoord));
+	if (tileGid) {
+		ValueMap properties = _tileMap->getPropertiesForGID(tileGid).asValueMap();
+		if (!properties.empty()) {
+			if (properties.find("Collidable") != properties.end()){
+				 std::string collision = properties.at("Collidable").asString();
+				 if (collision.c_str() && (collision == "True")) {
+				 	return;
+				 }
+			}
+		}
+	}
+	_player->setPosition(position);
+}
+
+Vec2 HelloWorld::tileCoordForPosition(Vec2 position)
+{
+	int x = position.x / tileWidth;
+	int y = ((mapHeight * tileHeight) - position.y) / tileHeight;
+	return Vec2(x, y);
 }

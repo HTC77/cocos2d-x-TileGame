@@ -50,6 +50,11 @@ public:
 
 	bool touchBegan(Touch* touch, Event* event);
 	void touchEnded(Touch* touch, Event* event);
+
+	void setPlayerPosition(Vec2 position);
+	TMXLayer* _meta;
+	Vec2 tileCoordForPosition(Vec2 position);
+	float mapWidth, mapHeight, tileWidth, tileHeight;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
