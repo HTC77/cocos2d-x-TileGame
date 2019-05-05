@@ -46,7 +46,7 @@ bool HelloWorld::init()
         return false;
     }
 
-	winSize = Director::sharedDirector()->getWinSize();
+	winSize = Director::getInstance()->getWinSize();
 
 	// tile map
 	_tileMap = TMXTiledMap::create("TileMap.tmx");
@@ -55,8 +55,12 @@ bool HelloWorld::init()
 	// background
 	_background = _tileMap->getLayer("Background");
 	_background->retain();
+	
+	// foreground
+	_foreground = _tileMap->getLayer("Foreground");
+	_foreground->retain();
 
-	// meta layer
+	// meta
 	_meta = _tileMap->getLayer("Meta");
 	_meta->setVisible(false);
 	_meta->retain();
@@ -96,7 +100,6 @@ bool HelloWorld::init()
 
     return true;
 }
-
 
 void HelloWorld::menuCloseCallback(Ref* pSender)
 {
@@ -177,6 +180,13 @@ void HelloWorld::setPlayerPosition(Vec2 position)
 				 std::string collision = properties.at("Collidable").asString();
 				 if (collision.c_str() && (collision == "True")) {
 				 	return;
+				 }
+			}
+			if (properties.find("Collectable") != properties.end()){
+				 std::string collision = properties.at("Collectable").asString();
+				 if (collision.c_str() && (collision == "True")) {
+					 _meta->removeTileAt(tileCoord);
+					_foreground->removeTileAt(tileCoord);
 				 }
 			}
 		}

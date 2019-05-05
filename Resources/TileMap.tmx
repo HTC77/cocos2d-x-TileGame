@@ -24,7 +24,7 @@
  <objectgroup id="2" name="Objects" offsetx="-1.33333" offsety="2.66667">
   <object id="1" name="SpawnPoint" x="189.333" y="446.667"/>
  </objectgroup>
- <layer id="5" name="Forground" width="50" height="50">
+ <layer id="5" name="Foreground" width="50" height="50">
   <data encoding="base64" compression="zlib">
    eJzt10kKwCAMAEB/4v9/2aOXYoltkZgZ8KiJBrfWztB3J/CDXXPqk9grOc36rI531wCAuBPu0CpvgQpzzEhdYLAfgGyynltf571jHZ5iRnPKWsuoKn8fAAAAeOsCf9MDRg==
   </data>

@@ -55,6 +55,9 @@ public:
 	TMXLayer* _meta;
 	Vec2 tileCoordForPosition(Vec2 position);
 	float mapWidth, mapHeight, tileWidth, tileHeight;
+	
+	TMXLayer* _foreground;
+
 };
 
 #endif // __HELLOWORLD_SCENE_H__
