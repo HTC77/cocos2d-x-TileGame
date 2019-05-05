@@ -26,9 +26,10 @@
 #define __HELLOWORLD_SCENE_H__
 
 #include "cocos2d.h"
+#include "HudLayer.h"
 USING_NS_CC;
 
-class HelloWorld : public cocos2d::Scene
+class HelloWorld : public cocos2d::Layer
 {
 public:
     static cocos2d::Scene* createScene();
@@ -58,6 +59,8 @@ public:
 	
 	TMXLayer* _foreground;
 
+	HudLayer *_hud;
+	int _numCollected;
 };
 
 #endif // __HELLOWORLD_SCENE_H__

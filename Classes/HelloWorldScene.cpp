@@ -26,7 +26,13 @@
 
 Scene* HelloWorld::createScene()
 {
-    return HelloWorld::create();
+	auto scene = Scene::create();
+	auto layer = HelloWorld::create();
+	scene->addChild(layer);
+	auto hud = HudLayer::create();
+	scene->addChild(hud);
+	layer->_hud = hud;
+	return scene;
 }
 
 // Print useful error message instead of segfaulting when files are not there.
@@ -41,13 +47,13 @@ bool HelloWorld::init()
 {
     //////////////////////////////
     // 1. super init first
-    if ( !Scene::init() )
+    if ( !Layer::init() )
     {
         return false;
     }
 
 	winSize = Director::getInstance()->getWinSize();
-
+	_numCollected = 0;
 	// tile map
 	_tileMap = TMXTiledMap::create("TileMap.tmx");
 	_tileMap->retain();
@@ -187,6 +193,8 @@ void HelloWorld::setPlayerPosition(Vec2 position)
 				 if (collision.c_str() && (collision == "True")) {
 					 _meta->removeTileAt(tileCoord);
 					_foreground->removeTileAt(tileCoord);
+					_numCollected++;
+					_hud->numCollectedChanged(_numCollected);
 				 }
 			}
 		}
