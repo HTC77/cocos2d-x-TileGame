@@ -47,6 +47,9 @@ public:
 	Sprite *_player;
 	void setViewPointCenter(Vec2 position);
 	Size winSize;
+
+	bool touchBegan(Touch* touch, Event* event);
+	void touchEnded(Touch* touch, Event* event);
 };
 
 #endif // __HELLOWORLD_SCENE_H__

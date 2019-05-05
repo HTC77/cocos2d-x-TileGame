@@ -46,40 +46,9 @@ bool HelloWorld::init()
         return false;
     }
 
-    auto visibleSize = Director::getInstance()->getVisibleSize();
 	winSize = Director::sharedDirector()->getWinSize();
-    Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
-    /////////////////////////////
-    // 2. add a menu item with "X" image, which is clicked to quit the program
-    //    you may modify it.
-
-    // add a "close" icon to exit the progress. it's an autorelease object
-    auto closeItem = MenuItemImage::create(
-                                           "CloseNormal.png",
-                                           "CloseSelected.png",
-                                           CC_CALLBACK_1(HelloWorld::menuCloseCallback, this));
-
-    if (closeItem == nullptr ||
-        closeItem->getContentSize().width <= 0 ||
-        closeItem->getContentSize().height <= 0)
-    {
-        problemLoading("'CloseNormal.png' and 'CloseSelected.png'");
-    }
-    else
-    {
-        float x = origin.x + visibleSize.width - closeItem->getContentSize().width/2;
-        float y = origin.y + closeItem->getContentSize().height/2;
-        closeItem->setPosition(Vec2(x,y));
-    }
-
-    // create menu, it's an autorelease object
-    auto menu = Menu::create(closeItem, NULL);
-    menu->setPosition(Vec2::ZERO);
-    this->addChild(menu, 1);
-
-    /////////////////////////////
-    // 3. add your codes below...
+	// tile map
 	_tileMap = TMXTiledMap::create("TileMap.tmx");
 	_tileMap->retain();
 
@@ -108,6 +77,13 @@ bool HelloWorld::init()
 	this->addChild(_player);
 	this->setViewPointCenter(_player->getPosition());
 
+	// touch listener
+	auto touchListener = EventListenerTouchOneByOne::create();
+	touchListener->onTouchBegan = CC_CALLBACK_2(HelloWorld::touchBegan, this);
+	touchListener->onTouchEnded = CC_CALLBACK_2(HelloWorld::touchEnded, this);
+	getEventDispatcher()->addEventListenerWithSceneGraphPriority(
+		touchListener, this);
+
     return true;
 }
 
@@ -134,4 +110,47 @@ void HelloWorld::setViewPointCenter(Vec2 position)
 	Vec2 centerOfView = Vec2(winSize.width / 2, winSize.height / 2);
 	Vec2 viewVec2 = centerOfView - actualPosition;
 	this->setPosition(viewVec2);
+}
+
+bool HelloWorld::touchBegan(Touch* touch, Event* event)
+{
+	return true;
+}
+
+void HelloWorld::touchEnded(Touch* touch, Event* event)
+{
+	Vec2 touchLocation = touch->getLocationInView();
+	touchLocation = Director::getInstance()->convertToGL(touchLocation);
+	touchLocation = this->convertToNodeSpace(touchLocation);
+
+	Vec2 playerPos = _player->getPosition();
+	Vec2 diff = touchLocation - playerPos;
+
+	if (abs(diff.x) > abs(diff.y)) {
+		if (diff.x > 0) {
+			playerPos.x += _tileMap->getTileSize().width;
+		}
+		else {
+			playerPos.x -= _tileMap->getTileSize().width;
+		}
+	}
+	else {
+		if (diff.y > 0) {
+			playerPos.y += _tileMap->getTileSize().height;
+		}
+		else {
+			playerPos.y -= _tileMap->getTileSize().height;
+		}
+	}
+
+	// safety check on the bounds of the map
+	if (playerPos.x <= (_tileMap->getMapSize().width * _tileMap->getTileSize().width) &&
+		playerPos.y <= (_tileMap->getMapSize().height * _tileMap->getTileSize().height) &&
+		playerPos.y >= 0 &&
+		playerPos.x >= 0)
+	{
+		_player->setPosition(playerPos);
+	}
+
+	this->setViewPointCenter(_player->getPosition());
 }
