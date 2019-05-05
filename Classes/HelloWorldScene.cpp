@@ -23,6 +23,7 @@
  ****************************************************************************/
 
 #include "HelloWorldScene.h"
+#include "SimpleAudioEngine.h"
 
 Scene* HelloWorld::createScene()
 {
@@ -51,6 +52,11 @@ bool HelloWorld::init()
     {
         return false;
     }
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("pickup.mp3");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("hit.mp3");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadEffect("move.mp3");
+	CocosDenshion::SimpleAudioEngine::getInstance()->preloadBackgroundMusic("TileMap.mp3");
+	CocosDenshion::SimpleAudioEngine::getInstance()->playBackgroundMusic("TileMap.mp3",true);
 
 	winSize = Director::getInstance()->getWinSize();
 	_numCollected = 0;
@@ -185,12 +191,14 @@ void HelloWorld::setPlayerPosition(Vec2 position)
 			if (properties.find("Collidable") != properties.end()){
 				 std::string collision = properties.at("Collidable").asString();
 				 if (collision.c_str() && (collision == "True")) {
+					 CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("hit.mp3");
 				 	return;
 				 }
 			}
 			if (properties.find("Collectable") != properties.end()){
 				 std::string collision = properties.at("Collectable").asString();
 				 if (collision.c_str() && (collision == "True")) {
+					 CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("pickup.mp3");
 					 _meta->removeTileAt(tileCoord);
 					_foreground->removeTileAt(tileCoord);
 					_numCollected++;
@@ -199,6 +207,7 @@ void HelloWorld::setPlayerPosition(Vec2 position)
 			}
 		}
 	}
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("move.mp3");
 	_player->setPosition(position);
 }
 
