@@ -47,6 +47,7 @@ bool HelloWorld::init()
     }
 
     auto visibleSize = Director::getInstance()->getVisibleSize();
+	winSize = Director::sharedDirector()->getWinSize();
     Vec2 origin = Director::getInstance()->getVisibleOrigin();
 
     /////////////////////////////
@@ -82,9 +83,31 @@ bool HelloWorld::init()
 	_tileMap = TMXTiledMap::create("TileMap.tmx");
 	_tileMap->retain();
 
+	// background
 	_background = _tileMap->getLayer("Background");
 	_background->retain();
 	this->addChild(_tileMap);
+
+	// player
+	TMXObjectGroup *objectGroup = _tileMap->getObjectGroup("Objects");
+
+	if (objectGroup == NULL) {
+		CCLOG("tile map has no objects object layer");
+		return false;
+	}
+
+	ValueMap spawnPoint = objectGroup->getObject("SpawnPoint");
+
+	int x = spawnPoint.at("x").asInt();
+	int y = spawnPoint.at("y").asInt();
+
+	_player = Sprite::create();
+	_player->initWithFile("Player.png");
+	_player->setPosition(Vec2(x, y));
+
+	this->addChild(_player);
+	this->setViewPointCenter(_player->getPosition());
+
     return true;
 }
 
@@ -98,4 +121,17 @@ void HelloWorld::menuCloseCallback(Ref* pSender)
 
     //EventCustom customEndEvent("game_scene_close_event");
     //_eventDispatcher->dispatchEvent(&customEndEvent);
+}
+
+void HelloWorld::setViewPointCenter(Vec2 position)
+{
+	int x = MAX(position.x, winSize.width / 2);
+	int y = MAX(position.y, winSize.height / 2);
+	x = MIN(x, (_tileMap->getMapSize().width * this->_tileMap->getTileSize().width) - winSize.width / 2);
+	y = MIN(y, (_tileMap->getMapSize().height * _tileMap->getTileSize().height) - winSize.height / 2);
+	Vec2 actualPosition = Vec2(x, y);
+
+	Vec2 centerOfView = Vec2(winSize.width / 2, winSize.height / 2);
+	Vec2 viewVec2 = centerOfView - actualPosition;
+	this->setPosition(viewVec2);
 }

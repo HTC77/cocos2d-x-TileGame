@@ -43,7 +43,10 @@ public:
 
 	TMXTiledMap *_tileMap;
 	TMXLayer *_background;
-
+	
+	Sprite *_player;
+	void setViewPointCenter(Vec2 position);
+	Size winSize;
 };
 
 #endif // __HELLOWORLD_SCENE_H__
